@@ -18,5 +18,5 @@
         "step" : "*",
         "request" : "~2.21.0"
     },
-    "main" : "source/jscr.js"
+    "main" : "./source/index.js"
 }

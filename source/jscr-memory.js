@@ -2,7 +2,7 @@
 if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
-define([ 'underscore', 'jscr-api' ], function(_, API) {
+define([ 'underscore', './jscr-api' ], function(_, API) {
 
     /* ----------------------------------------------------------------------- */
     var Impl = API.Implementation.Memory = {};

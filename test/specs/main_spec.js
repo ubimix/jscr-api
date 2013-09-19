@@ -8,5 +8,6 @@ require.config({
         'jscr-memory' : '../../source/jscr-memory'
     }
 });
+
 var specs = [ './ApiTest', './MemoryApiTest' ];
 require.call(require, specs);

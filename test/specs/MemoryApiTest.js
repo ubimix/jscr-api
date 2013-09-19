@@ -1,7 +1,7 @@
 "use strict"
 var tests = [ './TestWorkspaceConnection', './TestWorkspace', './TestProject' ];
 
-var dependencies = [ 'underscore', './TestUtils', 'jscr-memory' ];
+var dependencies = [ 'underscore', './TestUtils', 'jscr-api', 'jscr-memory' ];
 define([].concat(dependencies).concat(tests),
 
 function(_, Utils, API) {

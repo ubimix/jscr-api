@@ -25,7 +25,9 @@ require([], function() {
             }
         }
     });
-    require([ 'jasmine', 'jasminehtml', './specs/ApiTest', './specs/MemoryApiTest' ], function(jasmineEnv) {
+    var specs = [ './specs/ApiTest', './specs/MemoryApiTest' ];
+
+    require([ 'jasmine', 'jasminehtml' ].concat(specs), function(jasmineEnv) {
         var jasmineEnv = jasmine.getEnv();
         jasmineEnv.updateInterval = 1000;
         var htmlReporter = new jasmine.HtmlReporter();
