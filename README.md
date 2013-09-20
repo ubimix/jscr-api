@@ -8,6 +8,12 @@ Prepare the project:
 npm install
 ```
 
+Prepare tests:
+```
+cd test
+bower install
+```
+
 Tests in the command line:
 ```
 npm test
