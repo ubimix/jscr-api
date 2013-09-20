@@ -150,8 +150,10 @@ define([ 'underscore' ], function(_) {
         initialize : function(options) {
             options = options || {};
             _.each(options, function(value, key) {
-                this[key] = value;
-            })
+                this[key] = API.copy(value);
+            }, this)
+            this.sys = this.sys || {};
+            this.properties = this.properties || {};
         },
         /** Returns a new copy of this resource */
         getCopy : function() {
