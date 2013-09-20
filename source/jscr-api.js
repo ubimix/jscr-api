@@ -2,10 +2,13 @@
 if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
-define([ 'underscore' ], function(_) {
+define([ 'underscore', 'q' ], function(_, Q) {
 
     var API = {};
     API.Implementation = {};
+    API.notImplemented = function() {
+        return new Error('Not implemented');
+    }
 
     /* --------------------------------------------------------------------- */
 
@@ -20,13 +23,9 @@ define([ 'underscore' ], function(_) {
         Type.typeID = typeCounter++;
         Type.prototype.notImplemented = function() {
             var pos = arguments.length - 1;
-            var callback = pos >= 0 ? arguments[pos] : 0;
-            var err = new Error('Not implemented');
-            if (_.isFunction(callback)) {
-                callback.call(this, err);
-            } else {
-                throw err;
-            }
+            var deferred = Q.defer();
+            deferred.reject(API.notImplemented());
+            return deferred.promise;
         }
         Type.extend = function() {
             var type = API.newClass.apply(this, arguments);
@@ -219,13 +218,9 @@ define([ 'underscore' ], function(_) {
         /**
          * Connects to the underlying workspace and returns the workspace
          * instance.
-         * 
-         * @param callback
-         *            the callback function accepting results of this operation
-         * 
          */
-        connect : function(callback) {
-            this.notImplemented.apply(this, arguments);
+        connect : function() {
+            return this.notImplemented.apply(this, arguments);
         }
     })
 
@@ -237,12 +232,9 @@ define([ 'underscore' ], function(_) {
 
         /**
          * Loads all projects from this workspace. Returns a {key: project} map.
-         * 
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadProjects : function(callback) {
-            this.notImplemented.apply(this, arguments);
+        loadProjects : function() {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -255,11 +247,9 @@ define([ 'underscore' ], function(_) {
          * @param options
          *            if this option object contains create=true flag then a new
          *            project is automatically created if it does not exist yet
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadProject : function(projectKey, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        loadProject : function(projectKey, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -269,11 +259,9 @@ define([ 'underscore' ], function(_) {
          *            the key of the project to return
          * @param options
          *            options object
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        deleteProject : function(projectKey, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        deleteProject : function(projectKey, options) {
+            return this.notImplemented.apply(this, arguments);
         }
     });
 
@@ -282,6 +270,11 @@ define([ 'underscore' ], function(_) {
     /** Individual project giving access to resources. */
     API.Project = API.newClass({
 
+        /** Returns the key of the project */
+        getProjectKey : function() {
+            throw API.notImplemented();
+        },
+
         /**
          * Loads a resource corresponding to the specified path. If there is no
          * such a resource an the given options object contains the 'create'
@@ -289,11 +282,9 @@ define([ 'underscore' ], function(_) {
          * 
          * @param path
          *            the path of the resource to load
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadResource : function(path, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        loadResource : function(path, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -308,11 +299,9 @@ define([ 'underscore' ], function(_) {
          * @param options
          *            an object containing loading options (depends on
          *            implementation)
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadResources : function(pathList, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        loadResources : function(pathList, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -325,11 +314,9 @@ define([ 'underscore' ], function(_) {
          * @param options
          *            an object containing search options (depends on
          *            implementation)
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadChildResources : function(path, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        loadChildResources : function(path, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -342,11 +329,9 @@ define([ 'underscore' ], function(_) {
          *            the path of the resource to remove
          * @param options
          *            implementation-specific options
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        deleteResource : function(path, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        deleteResource : function(path, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -357,11 +342,9 @@ define([ 'underscore' ], function(_) {
          *            the resource to store
          * @param options
          *            implementation-specific options
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        storeResource : function(resource, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        storeResource : function(resource, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         // ----------------------------------------------
@@ -406,11 +389,9 @@ define([ 'underscore' ], function(_) {
          *            object containing search options; 'from' - the oldest
          *            modification version identifier; 'to' - the most recent
          *            searched version
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadModifiedResources : function(options, callback) {
-            this.notImplemented.apply(this, arguments);
+        loadModifiedResources : function(options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -461,11 +442,9 @@ define([ 'underscore' ], function(_) {
          *            object containing search options; 'from' - the oldest
          *            modification version identifier; 'to' - the most recent
          *            searched version
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadResourceRevisions : function(path, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        loadResourceRevisions : function(path, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         /**
@@ -496,11 +475,9 @@ define([ 'underscore' ], function(_) {
          *            object containing search options; 'from' - the oldest
          *            modification version identifier; 'to' - the most recent
          *            searched version
-         * @param callback
-         *            the callback function accepting results of this operation
          */
-        loadResourceHistory : function(path, options, callback) {
-            this.notImplemented.apply(this, arguments);
+        loadResourceHistory : function(path, options) {
+            return this.notImplemented.apply(this, arguments);
         },
 
         // ----------------------------------------------
@@ -545,13 +522,11 @@ define([ 'underscore' ], function(_) {
          * 
          * @param query
          *            a query object
-         * @param callback
-         *            the callback function accepting results of this operation
          */
         // query : { term : 'Hello', sortBy : 'properties.label', order : 'asc'
         // }
-        searchResources : function(query, callback) {
-            this.notImplemented.apply(this, arguments);
+        searchResources : function(query) {
+            return this.notImplemented.apply(this, arguments);
             // ResultSet is an object with the following fields:
             // - totalNumber - number of found resources
             // resultSet.loadNext(function(err, result) {
@@ -566,8 +541,8 @@ define([ 'underscore' ], function(_) {
     // Lock/unlock
 
     // // options: { force : true, prevLock : lock }
-    // lockResource : function(path, options, callback) {
-    // this.notImplemented.apply(this, arguments);
+    // lockResource : function(path, options) {
+    // return this.notImplemented.apply(this, arguments);
     // // 'lock' is an object with the following fields:
     // // - id: 'idLock'
     // // - expireTime: 123435
@@ -576,8 +551,8 @@ define([ 'underscore' ], function(_) {
     // },
     //
     // // 'lock' is an object defining the max timeout of the lock
-    // unlockResource : function(path, lock, callback) {
-    // this.notImplemented.apply(this, arguments);
+    // unlockResource : function(path, lock) {
+    // return this.notImplemented.apply(this, arguments);
     // }
 
     });

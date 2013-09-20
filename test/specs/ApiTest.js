@@ -2,8 +2,7 @@
 if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
-define([ 'underscore', 'step', 'jscr-api', './TestUtils' ], function(_, Step,
-        API, Utils) {
+define([ 'underscore', 'jscr-api', './TestUtils' ], function(_, API, Utils) {
 
     var trace = Utils.trace;
 
@@ -81,10 +80,10 @@ define([ 'underscore', 'step', 'jscr-api', './TestUtils' ], function(_, Step,
     });
 
     describe('API.Project', function() {
-        var expectedMethods = [ 'loadResource', 'loadResources',
-                'loadResources', 'deleteResource', 'storeResource',
-                'loadModifiedResources', 'loadResourceHistory',
-                'searchResources' ];
+        var expectedMethods = [ 'getProjectKey', 'loadResource',
+                'loadResources', 'loadResources', 'deleteResource',
+                'storeResource', 'loadModifiedResources',
+                'loadResourceHistory', 'searchResources' ];
         var project = new API.Project();
         _.each(expectedMethods, function(method) {
             it('should have the "' + method + '" method', function() {

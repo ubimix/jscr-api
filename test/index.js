@@ -2,7 +2,7 @@ require([], function() {
     require.config({
         paths : {
             'jquery' : './libs/jquery/jquery',
-            'step' : './libs/step/step',
+            'q' : './libs/q/q',
             'underscore' : './libs/underscore/underscore-min',
             'jasmine' : './libs/jasmine/lib/jasmine-core/jasmine',
             'jasminehtml' : './libs/jasmine/lib/jasmine-core/jasmine-html',
@@ -12,9 +12,6 @@ require([], function() {
         shim : {
             'underscore' : {
                 exports : '_'
-            },
-            'step' : {
-                exports : 'Step'
             },
             'jasmine' : {
                 exports : 'jasmine'

@@ -3,9 +3,9 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
 
-define([ 'underscore', 'step', 'jscr-api', './TestUtils' ],
+define([ 'underscore', 'jscr-api', './TestUtils' ],
 
-function(_, Step, API, Utils) {
+function(_, API, Utils) {
     return function(newConnection) {
         var trace = Utils.trace;
         describe('API.WorkspaceConnection', function() {
@@ -13,7 +13,9 @@ function(_, Step, API, Utils) {
                 var connection = newConnection();
                 expect(connection).not.toEqual(null);
                 expect(connection.connect).not.toEqual(null);
-                connection.connect(function(err, workspace) {
+                var promise = connection.connect();
+                expect(promise).not.toEqual(null);
+                promise.then(function(workspace) {
                     expect(err).toEqual(null);
                     expect(workspace).not.toEqual(null);
                 })

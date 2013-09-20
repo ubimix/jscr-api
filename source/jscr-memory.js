@@ -2,17 +2,17 @@
 if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
-define([ 'underscore', './jscr-api' ], function(_, API) {
+define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
 
     /* ----------------------------------------------------------------------- */
     var Impl = API.Implementation.Memory = {};
 
     Impl.WorkspaceConnection = API.WorkspaceConnection.extend({
-        connect : function(callback) {
+        connect : function() {
             if (!this.workspace) {
                 this.workspace = this.newWorkspace();
             }
-            callback(null, this.workspace);
+            return Q(this.workspace);
         },
         newWorkspace : function() {
             return new Impl.Workspace();
@@ -23,7 +23,7 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
         initialize : function() {
             this.projects = {};
         },
-        loadProject : function(projectKey, options, callback) {
+        loadProject : function(projectKey, options) {
             projectKey = API.normalizePath(projectKey);
             var project = this.projects[projectKey];
             if (!project && options.create) {
@@ -32,17 +32,17 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
                 });
                 this.projects[projectKey] = project;
             }
-            callback(null, project);
+            return Q(project);
         },
-        loadProjects : function(callback) {
-            callback(null, this.projects);
+        loadProjects : function() {
+            return Q(this.projects);
         },
-        deleteProject : function(projectKey, options, callback) {
+        deleteProject : function(projectKey, options) {
             projectKey = API.normalizePath(projectKey);
             var project = this.projects[projectKey];
             var result = project != null;
             delete this.projects[projectKey];
-            callback(null, result);
+            return Q(result);
         },
         newProject : function(options) {
             return new Impl.Project(options);
@@ -51,8 +51,12 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
 
     Impl.Project = API.Project.extend({
         initialize : function(options) {
+            this.options = options || {};
             this.versionCounter = 0;
             this.resources = {};
+        },
+        getProjectKey : function() {
+            return API.normalizePath(this.options.key);
         },
         getResourceHistory : function(path, create) {
             var history = this.resources[path];
@@ -99,21 +103,21 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
         },
         /* ---------------------------------------------------------------- */
         // Public methods
-        loadResource : function(path, options, callback) {
-            var resource = this.getResource(path, options, callback);
-            callback(null, resource);
+        loadResource : function(path, options) {
+            var resource = this.getResource(path, options);
+            return Q(resource);
         },
         // 'resources' is a map of paths and the corresponding resources
-        loadResources : function(pathList, options, callback) {
+        loadResources : function(pathList, options) {
             var list = [];
             _.each(pathList, function(path) {
                 var resource = this.getResource(path, options);
                 list.push(resource);
             }, this);
-            callback(null, list);
+            return Q(list);
         },
 
-        loadChildResources : function(path, options, callback) {
+        loadChildResources : function(path, options) {
             var path = API.normalizePath(path);
             var result = {};
             _.each(this.resources, function(history, resourcePath) {
@@ -125,32 +129,32 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
                     }
                 }
             }, this);
-            callback(null, result);
+            return Q(result);
         },
         // Result: true/false
-        deleteResource : function(path, options, callback) {
+        deleteResource : function(path, options) {
             var path = API.normalizePath(path);
             var resource = this.resources[path];
             delete this.resources[path];
             var result = resource != null;
-            callback(null, result);
+            return Q(result);
         },
 
-        storeResource : function(resource, options, callback) {
+        storeResource : function(resource, options) {
             resource = API.resource(resource);
             var path = resource.getPath();
             var history = this.getResourceHistory(path, true);
             var version = this.getProjectVersion(true);
             resource.updateVersion(version);
             history.push(resource);
-            callback(null, resource);
+            return Q(resource);
         },
 
         // ----------------------------------------------
         // History management
 
         // { from : '123215', to : '1888888', order : 'asc' }
-        loadModifiedResources : function(options, callback) {
+        loadModifiedResources : function(options) {
             var from = API.version(options.from || 0);
             var to = API.version(options.to);
             var result = {};
@@ -164,9 +168,10 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
                     result[path] = resource;
                 }
             }, this);
-            callback(null, result);
+            return Q(result);
         },
-        loadResourceHistory : function(path, options, callback) {
+        loadResourceHistory : function(path, options) {
+            options = options || {};
             var from = API.version(options.from || 0);
             var to = API.version(options.to);
             path = API.normalizePath(path);
@@ -180,9 +185,9 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
                     }
                 });
             }
-            callback(null, result);
+            return Q(result);
         },
-        loadResourceRevisions : function(path, options, callback) {
+        loadResourceRevisions : function(path, options) {
             var versions = {};
             var timestamps = {};
             var versions = options.versions || [];
@@ -207,7 +212,7 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
                     }
                 }, this);
             }
-            callback(null, result);
+            return Q(result);
         },
 
         // ----------------------------------------------
@@ -215,8 +220,8 @@ define([ 'underscore', './jscr-api' ], function(_, API) {
 
         // query : { term : 'Hello', sortBy : 'properties.label', order : 'asc'
         // }
-        searchResources : function(query, callback) {
-            this.notImplemented.apply(this, arguments);
+        searchResources : function(query) {
+            return this.notImplemented.apply(this, arguments);
 
             // ResultSet is an object with the following fields:
             // - totalNumber - number of found resources

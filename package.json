@@ -7,16 +7,15 @@
         "test" : "node ./node_modules/jasmine-node/lib/jasmine-node/cli.js --runWithRequireJs --test-dir ./test/specs"
     },
     "dependencies" : {
+        "q" : "~0.9.0",
         "underscore" : "~1.4.4"
     },
     "devDependencies" : {
-        "q" : "~0.9.0",
         "bower": "~1.2.6",
         "jasmine-node" : "*",
         "express" : "latest",
         "amdefine" : ">=0.0.8",
-        "requirejs" : "*",
-        "step" : "*"
+        "requirejs" : "*"
     },
     "main" : "./source/index.js"
 }

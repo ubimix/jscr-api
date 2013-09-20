@@ -3,12 +3,12 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
 
-define([ 'underscore', 'step' ], function(_, Step) {
+define([ 'underscore', 'q' ], function(_, Q) {
 
     function printTrace() {
-//        console.log.apply(this, arguments);
+        // console.log.apply(this, arguments);
     }
-    
+
     function trace(name, f) {
         return function() {
             printTrace('[enter:' + name + ']');
@@ -20,18 +20,11 @@ define([ 'underscore', 'step' ], function(_, Step) {
         }
     }
 
-    function testSteps() {
+    function testPromise(promise) {
         var finished = false;
-        var list = [];
-        _.each(arguments, function(f) {
-            list.push(f);
-        }) 
-        list.push(trace('finish', function(err) {
+        promise.fin(function() {
             finished = true;
-            if (err)
-                throw err;
-        }));
-        Step.apply(null, list);
+        }).done();
         waitsFor(function() {
             return finished;
         }, "Operations should be finished in the 750ms", 750);
@@ -39,7 +32,6 @@ define([ 'underscore', 'step' ], function(_, Step) {
 
     return {
         trace : trace,
-
-        testSteps : testSteps
+        testPromise : testPromise
     }
 })
