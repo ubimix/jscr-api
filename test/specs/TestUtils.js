@@ -1,3 +1,8 @@
+"use strict"
+if (typeof define !== 'function') {
+    var define = require('amdefine')(module)
+}
+
 define([ 'underscore', 'step' ], function(_, Step) {
 
     function printTrace() {

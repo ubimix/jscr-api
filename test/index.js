@@ -3,10 +3,9 @@ require([], function() {
         paths : {
             'jquery' : './libs/jquery/jquery',
             'step' : './libs/step/step',
-            'text' : './libs/require/text',
             'underscore' : './libs/underscore/underscore-min',
-            'jasmine' : './jasmine/jasmine',
-            'jasminehtml' : './jasmine/jasmine-html',
+            'jasmine' : './libs/jasmine/lib/jasmine-core/jasmine',
+            'jasminehtml' : './libs/jasmine/lib/jasmine-core/jasmine-html',
             'jscr-api' : '../source/jscr-api',
             'jscr-memory' : '../source/jscr-memory'
         },
