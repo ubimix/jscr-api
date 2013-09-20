@@ -149,8 +149,9 @@ define([ 'underscore' ], function(_) {
         /** Initializes this object */
         initialize : function(options) {
             options = options || {};
-            this.sys = API.copy(options.sys);
-            this.properties = API.copy(options.properties);
+            _.each(options, function(value, key) {
+                this[key] = value;
+            })
         },
         /** Returns a new copy of this resource */
         getCopy : function() {
