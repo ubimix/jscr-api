@@ -3,9 +3,7 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
 
-define([ 'underscore', //
-'jscr-api/jscr-api', // 
-'jscr-api/test-utils' ],
+define([ 'underscore', './jscr-api', './test-utils' ],
 
 function(_, API, Utils) {
     return function(newConnection) {
