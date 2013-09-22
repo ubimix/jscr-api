@@ -2,16 +2,12 @@
 if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
-define([ 'underscore', 'jscr-api', './TestUtils' ], function(_, API, Utils) {
+define([ 'underscore', 'jscr-api/jscr-api', 'jscr-api/test-utils' ], function(
+        _, API, Utils) {
 
     var trace = Utils.trace;
 
-    describe('API', function() {
-        it('should not be empty', function() {
-            expect(API).not.toEqual(null);
-        });
-    });
-    describe('API.normalize', function() {
+    function testPathNormalization() {
         it('should add a slash at the beginning '
                 + 'and remove trailing slashes', function() {
             expect(API.normalizePath('')).toEqual('/');
@@ -20,10 +16,10 @@ define([ 'underscore', 'jscr-api', './TestUtils' ], function(_, API, Utils) {
             expect(API.normalizePath('/a/')).toEqual('/a');
             expect(API.normalizePath('/a')).toEqual('/a');
         });
-    });
+    }
 
-    describe('API.Class', function() {
-        it('should able to create sub-classes', function() {
+    function testClassCreation() {
+        it('should be able to create sub-classes', function() {
             var initialized = false;
             var Cls = API.newClass({
                 initialize : function() {
@@ -42,9 +38,9 @@ define([ 'underscore', 'jscr-api', './TestUtils' ], function(_, API, Utils) {
             var text = obj.sayHello();
             expect(text).toEqual('Hello');
         });
-    });
+    }
 
-    describe('API.Version', function() {
+    function testVersions() {
         it('should be able to transform a simple object in a versioned one',
                 function() {
                     var obj = {
@@ -66,31 +62,11 @@ define([ 'underscore', 'jscr-api', './TestUtils' ], function(_, API, Utils) {
                     expect(test.getVersionId()).toEqual('hello');
                     expect(test.getTimestamp()).toBe(1235);
                 });
-    });
-    describe('API.WorkspaceConnection', function() {
-        it('should have a connection method', function() {
-            var connection = new API.WorkspaceConnection();
-            expect(connection).not.toEqual(null);
-            expect(connection.connect).not.toEqual(null);
-            connection.connect({}, function(err, workspace) {
-                expect(err).not.toEqual(null);
-                expect(workspace).toEqual(null);
-            })
-        });
-    });
+    }
 
-    describe('API.Project', function() {
-        var expectedMethods = [ 'getProjectKey', 'loadResource',
-                'loadResources', 'loadResources', 'deleteResource',
-                'storeResource', 'loadModifiedResources',
-                'loadResourceHistory', 'searchResources' ];
-        var project = new API.Project();
-        _.each(expectedMethods, function(method) {
-            it('should have the "' + method + '" method', function() {
-                var val = project[method];
-                expect(_.isFunction(val)).toEqual(true);
-            })
-        })
-    });
-
+    describe('Basic API classes', function() {
+        describe('API.Class', testClassCreation);
+        describe('API.Version', testVersions);
+        describe('API.normalize', testPathNormalization);
+    })
 })

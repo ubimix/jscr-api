@@ -30,8 +30,19 @@ define([ 'underscore', 'q' ], function(_, Q) {
         }, "Operations should be finished in the 750ms", 750);
     }
 
+    function checkMethods(obj) {
+        var expectedMethods = _.toArray(arguments).slice(1);
+        _.each(expectedMethods, function(method) {
+            var val = obj[method];
+            if (!_.isFunction(val)) {
+                throw new Error('Method "' + method + '" expected');
+            }
+        })
+    }
+
     return {
         trace : trace,
-        testPromise : testPromise
+        testPromise : testPromise,
+        checkMethods : checkMethods
     }
 })

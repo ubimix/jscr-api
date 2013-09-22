@@ -3,22 +3,28 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
 
-define([ 'underscore', 'q', 'jscr-api', './TestUtils' ],
+define([ 'underscore', 'q', 'jscr-api/jscr-api', 'jscr-api/test-utils' ],
 
 function(_, Q, API, Utils) {
     return function(newConnection) {
         var trace = Utils.trace;
         describe('API.Workspace', function() {
 
-            var createProjects = function(workspace, projectNames) {
-            }
+            it('should have all methods defined by the API', function() {
+                var connection = newConnection();
+                Utils.testPromise(connection.connect().then(
+                        function(workspace) {
+                            Utils.checkMethods(workspace, 'loadProject',
+                                    'loadProjects', 'deleteProject');
+                        }));
+            });
 
             it('should be able to create a new project', function() {
                 var finished = false;
                 var workspace = null;
                 var projectName = 'test';
                 var connection = newConnection();
-                connection.connect()
+                Utils.testPromise(connection.connect()
                 //
                 .then(function(ws) {
                     workspace = ws;
@@ -46,14 +52,7 @@ function(_, Q, API, Utils) {
                 //
                 .fail(function(err) {
                     console.log(err);
-                })
-                //
-                .fin(function() {
-                    finished = true;
-                });
-                waitsFor(function() {
-                    return finished;
-                }, "Operations should be finished in the 750ms", 750);
+                }));
             })
 
             function testNoProjects(projects, projectNames) {
@@ -78,11 +77,10 @@ function(_, Q, API, Utils) {
 
                 var workspace = null;
                 var projectNames = [ 'test1', 'test2', 'test3', 'test4' ];
-                var finished = false;
                 var connection = newConnection();
 
                 // Connect
-                connection.connect().then(function(ws) {
+                Utils.testPromise(connection.connect().then(function(ws) {
                     workspace = ws;
                 })
                 // Try to load non-existing projects
@@ -120,25 +118,16 @@ function(_, Q, API, Utils) {
                 // Test loaded projects
                 .then(function(projects) {
                     testProjects(projects, projectNames);
-                })
-                //
-                .fin(function(err) {
-                    finished = true;
-                }).done();
-
-                waitsFor(function() {
-                    return finished;
-                }, "Operations should be finished in the 750ms", 750);
+                }));
             })
 
             //
             it('should be able to create and delete projects', function() {
                 var projectNames = [ 'test1', 'test2', 'test3', 'test4' ];
-                var finished = false;
                 var workspace = null;
                 var connection = newConnection();
                 // Connect
-                connection.connect()
+                Utils.testPromise(connection.connect()
                 // Create projects
                 .then(function(ws) {
                     workspace = ws;
@@ -172,15 +161,7 @@ function(_, Q, API, Utils) {
                 // anymore)
                 .then(function(projects) {
                     testNoProjects(projects, projectNames);
-                })
-                //
-                .fin(function(err) {
-                    finished = true;
-                }).done();
-
-                waitsFor(function() {
-                    return finished;
-                }, "Operations should be finished in the 750ms", 750);
+                }));
             })
         });
     }

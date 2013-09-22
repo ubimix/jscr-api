@@ -3,8 +3,8 @@
     "version" : "0.0.1",
     "private" : true,
     "scripts" : {
-        "start" : "node test/server.js",
-        "test" : "node ./node_modules/jasmine-node/lib/jasmine-node/cli.js --runWithRequireJs --test-dir ./test/specs"
+        "start" : "node specs/server.js",
+        "test" : "node ./node_modules/jasmine-node/lib/jasmine-node/cli.js --runWithRequireJs --test-dir ./specs/"
     },
     "dependencies" : {
         "q" : "~0.9.0",

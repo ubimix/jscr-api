@@ -3,7 +3,7 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
 
-define([ 'underscore', 'q', 'jscr-api', './TestUtils' ],
+define([ 'underscore', 'q', 'jscr-api/jscr-api', 'jscr-api/test-utils' ],
 
 function(_, Q, API, Utils) {
     return function(newConnection) {
@@ -22,6 +22,16 @@ function(_, Q, API, Utils) {
                 }).then(function(prj) {
                     project = prj;
                 });
+            });
+
+            it('should have all methods defined by the API', function() {
+                Utils.testPromise(promise.then(function() {
+                    Utils.checkMethods(project, 'getProjectKey',
+                            'loadResource', 'loadResources', 'loadResources',
+                            'deleteResource', 'storeResource',
+                            'loadModifiedResources', 'loadResourceHistory',
+                            'searchResources');
+                }));
             });
 
             it('should be able to return an empty resource', function() {

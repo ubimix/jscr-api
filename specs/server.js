@@ -14,5 +14,5 @@
     });
 
     app.listen(port);
-    console.log("http://127.0.0.1:" + port + '/test/');
+    console.log("http://127.0.0.1:" + port + '/specs/');
 })(this);

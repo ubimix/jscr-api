@@ -3,12 +3,19 @@ if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
 
-define([ 'underscore', 'jscr-api', './TestUtils' ],
+define([ 'underscore', //
+'jscr-api/jscr-api', // 
+'jscr-api/test-utils' ],
 
 function(_, API, Utils) {
     return function(newConnection) {
-        var trace = Utils.trace;
         describe('API.WorkspaceConnection', function() {
+
+            it('should have all methods defined by the API', function() {
+                var connection = newConnection();
+                Utils.checkMethods(connection, 'connect');
+            });
+
             it('should be able to create a new workspace', function() {
                 var connection = newConnection();
                 expect(connection).not.toEqual(null);

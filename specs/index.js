@@ -1,13 +1,12 @@
 require([], function() {
     require.config({
         paths : {
-            'jquery' : './libs/jquery/jquery',
-            'q' : './libs/q/q',
-            'underscore' : './libs/underscore/underscore-min',
-            'jasmine' : './libs/jasmine/lib/jasmine-core/jasmine',
-            'jasminehtml' : './libs/jasmine/lib/jasmine-core/jasmine-html',
-            'jscr-api' : '../source/jscr-api',
-            'jscr-memory' : '../source/jscr-memory'
+            'jquery' : '../libs/jquery/jquery',
+            'q' : '../libs/q/q',
+            'underscore' : '../libs/underscore/underscore-min',
+            'jasmine' : '../libs/jasmine/lib/jasmine-core/jasmine',
+            'jasminehtml' : '../libs/jasmine/lib/jasmine-core/jasmine-html',
+            'jscr-api' : '../source'
         },
         shim : {
             'underscore' : {
@@ -21,9 +20,8 @@ require([], function() {
             }
         }
     });
-    var specs = [ './specs/ApiTest', './specs/MemoryApiTest' ];
-
-    require([ 'jasmine', 'jasminehtml' ].concat(specs), function(jasmineEnv) {
+    var specs = [ './test-api-classes', './test-impl-memory' ];
+    require([ 'jasmine', 'jasminehtml' ], function(jasmine) {
         var jasmineEnv = jasmine.getEnv();
         jasmineEnv.updateInterval = 1000;
         var htmlReporter = new jasmine.HtmlReporter();
@@ -31,6 +29,8 @@ require([], function() {
         jasmineEnv.specFilter = function(spec) {
             return htmlReporter.specFilter(spec);
         };
-        jasmineEnv.execute();
+        require(specs, function() {
+            jasmineEnv.execute();
+        })
     });
 });
