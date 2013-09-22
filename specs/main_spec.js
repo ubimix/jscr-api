@@ -1,8 +1,7 @@
 "use strict"
 require.config({
     paths : {
-        'jscr-api' : '../source',
-        'jasmine' : '../libs/jasmine/lib/jasmine-core/jasmine'
+        'jscr-api' : '../'
     }
 });
 require('./test-api-classes');

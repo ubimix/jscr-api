@@ -6,7 +6,7 @@ require([], function() {
             'underscore' : '../libs/underscore/underscore-min',
             'jasmine' : '../libs/jasmine/lib/jasmine-core/jasmine',
             'jasminehtml' : '../libs/jasmine/lib/jasmine-core/jasmine-html',
-            'jscr-api' : '../source'
+            'jscr-api' : '../'
         },
         shim : {
             'underscore' : {

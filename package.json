@@ -1,6 +1,6 @@
 {
     "name" : "jscr-api",
-    "version" : "0.0.1",
+    "version" : "0.3.1",
     "private" : true,
     "scripts" : {
         "start" : "node specs/server.js",
@@ -16,6 +16,5 @@
         "express" : "latest",
         "amdefine" : ">=0.0.8",
         "requirejs" : "*"
-    },
-    "main" : "./source/index.js"
+    }
 }

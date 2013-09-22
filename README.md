@@ -23,4 +23,4 @@ Run tests in the browser:
 npm start
 ```
 Open this page in the browser:
-http://127.0.0.1:3700/test/
+http://127.0.0.1:3700/specs/
