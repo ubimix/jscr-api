@@ -53,6 +53,7 @@ define([ 'underscore', 'q' ], function(_, Q) {
         if (!path)
             return '/';
         path = '' + path;
+        path = path.replace(/\/+/g, '/');
         if (!path.match(/^\//)) {
             path = '/' + path;
         }
@@ -148,8 +149,11 @@ define([ 'underscore', 'q' ], function(_, Q) {
         /** Initializes this object */
         initialize : function(options) {
             options = options || {};
-            this.sys = API.copy(options.sys);
-            this.properties = API.copy(options.properties);
+            _.each(options, function(value, key) {
+                this[key] = API.copy(value);
+            }, this);
+            this.sys = this.sys||{};
+            this.properties = this.properties||{};
         },
         /** Returns a new copy of this resource */
         getCopy : function() {
