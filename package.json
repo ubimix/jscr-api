@@ -2,9 +2,10 @@
     "name" : "jscr-api",
     "version" : "0.3.1",
     "private" : true,
+    "main": "./",
     "scripts" : {
         "start" : "node specs/server.js",
-        "test" : "node ./node_modules/jasmine-node/lib/jasmine-node/cli.js --runWithRequireJs --test-dir ./specs/"
+        "test" : "node test-runner.js"
     },
     "dependencies" : {
         "q" : "~0.9.0",
@@ -12,7 +13,6 @@
     },
     "devDependencies" : {
         "bower": "~1.2.6",
-        "jasmine-node" : "*",
         "express" : "latest",
         "amdefine" : ">=0.0.8",
         "requirejs" : "*"
