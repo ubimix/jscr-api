@@ -51,13 +51,13 @@ define([ 'underscore', 'q' ], function(_, Q) {
     /** Normalizes the given path */
     API.normalizePath = function(path) {
         if (!path)
-            return '/';
+            return '';
         path = '' + path;
         path = path.replace(/\/+/g, '/');
-        if (!path.match(/^\//)) {
-            path = '/' + path;
+        if (path.match(/^\//)) {
+            path = path.substring(1);
         }
-        if (path.match(/\/$/) && path.length > 1) {
+        if (path.match(/\/$/) && path.length >= 1) {
             path = path.substring(0, path.length - 1);
         }
         return path;

@@ -77,9 +77,9 @@ function(_, Q, API, Utils) {
                                 expect(path).toEqual(name);
                             })
                             testChildResources(project, 'about', [
-                                    '/about/team', '/about/news' ]);
-                            testChildResources(project, '', [ '/about',
-                                    '/docs', 'path' ]);
+                                    'about/team', 'about/news' ]);
+                            testChildResources(project, '', [ 'about', 'docs',
+                                    'path' ]);
                             return true;
                         }));
             });
