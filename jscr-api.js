@@ -51,13 +51,14 @@ define([ 'underscore', 'q' ], function(_, Q) {
     /** Normalizes the given path */
     API.normalizePath = function(path) {
         if (!path)
-            return '';
+            return '/';
         path = '' + path;
-        path = path.replace(/\/+/g, '/');
-        if (path.match(/^\//)) {
-            path = path.substring(1);
+        path = path.replace(/\\/g, '/').replace(/\/+/g, '/');
+        if (!path.match(/^\//)) {
+            path = '/' + path;
+            // path = path.substring(1);
         }
-        if (path.match(/\/$/) && path.length >= 1) {
+        if (path.match(/\/$/) && path.length > 1) {
             path = path.substring(0, path.length - 1);
         }
         return path;
@@ -152,8 +153,8 @@ define([ 'underscore', 'q' ], function(_, Q) {
             _.each(options, function(value, key) {
                 this[key] = API.copy(value);
             }, this);
-            this.sys = this.sys||{};
-            this.properties = this.properties||{};
+            this.sys = this.sys || {};
+            this.properties = this.properties || {};
         },
         /** Returns a new copy of this resource */
         getCopy : function() {
