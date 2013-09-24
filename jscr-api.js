@@ -53,7 +53,7 @@ define([ 'underscore', 'q' ], function(_, Q) {
         if (!path)
             return '';
         path = '' + path;
-        path = path.replace(/\/+/g, '/');
+        path = path.replace(/[\\\/]+/g, '/');
         if (path.match(/^\//)) {
             path = path.substring(1);
         }
