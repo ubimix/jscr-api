@@ -1,11 +1,38 @@
+/**
+ * This module defines a set of classes and interfaces of the JavaScript Content
+ * Repository API (JSCR API). All methods defined by interface classes perform
+ * asynchronous calls and return promises for results.
+ * 
+ * This module uses the following libraries:
+ * <ul>
+ * <li>'underscore.js' - as the main toolbox for manipulation with JavaScript
+ * objects</li>
+ * <li>'q.js' - to implement promise-based APIs</li>
+ * </ul>
+ * 
+ * @author kotelnikov
+ */
 "use strict"
 if (typeof define !== 'function') {
     var define = require('amdefine')(module)
 }
 define([ 'underscore', 'q' ], function(_, Q) {
 
+    /**
+     * The main namespace for all JSCR types and methods.
+     */
     var API = {};
+
+    /**
+     * Main namespace for various implementations of this API. Individual
+     * implementations should add their classes in this object.
+     */
     API.Implementation = {};
+
+    /**
+     * An utility method used to mark API 'abstract' methods as not implemented.
+     * This method rises an exception.
+     */
     API.notImplemented = function() {
         return new Error('Not implemented');
     }
@@ -13,32 +40,43 @@ define([ 'underscore', 'q' ], function(_, Q) {
     /* --------------------------------------------------------------------- */
 
     var typeCounter = 0;
-    /** This method creates a new class */
+    /**
+     * This method creates a new class.
+     */
     API.newClass = function() {
+        // A new type definition.
         var Type = function() {
             if (this.initialize) {
                 this.initialize.apply(this, arguments);
             }
         }
+        // Unique identifier of a new created type
         Type.typeID = typeCounter++;
+        // 'notImplemented' method associated with this class
         Type.prototype.notImplemented = function() {
-            var pos = arguments.length - 1;
-            var deferred = Q.defer();
-            deferred.reject(API.notImplemented());
-            return deferred.promise;
+            return Q().then(function() {
+                throw API.notImplemented();
+            })
         }
+        // This method allows to extend classes with new properties and methods
         Type.extend = function() {
             var type = API.newClass.apply(this, arguments);
             return type;
         }
+        // Copies all methods of this class to a newly created child class
         _.extend(Type.prototype, this.prototype);
+        // Copies newly defined fields and methods in the new class
         _.each(arguments, function(fields) {
             _.extend(Type.prototype, fields);
         })
+        // Returns the new type
         return Type;
     }
 
-    /** Makes a "deep" copy of the given object. */
+    /**
+     * Makes a "deep" copy of the given object. It serializes/deserializes the
+     * specified object to create a new copy.
+     */
     API.copy = function(obj) {
         if (_.isNumber(obj) || _.isString(obj) || _.isBoolean(obj))
             return obj;
@@ -48,16 +86,19 @@ define([ 'underscore', 'q' ], function(_, Q) {
         return clone;
     }
 
-    /** Normalizes the given path */
+    /**
+     * Normalizes the given path.
+     */
     API.normalizePath = function(path) {
         if (!path)
             return '';
         path = '' + path;
         path = path.replace(/[\\\/]+/g, '/');
         if (path.match(/^\//)) {
+            // path = '/' + path;
             path = path.substring(1);
         }
-        if (path.match(/\/$/) && path.length >= 1) {
+        if (path.match(/\/$/) && path.length > 1) {
             path = path.substring(0, path.length - 1);
         }
         return path;
@@ -70,7 +111,9 @@ define([ 'underscore', 'q' ], function(_, Q) {
      */
     API.Version = API.newClass({
 
-        /** Initializes the internal fields of this object */
+        /**
+         * Initializes the internal fields of this object.
+         */
         initialize : function(options) {
             if (_.isNumber(options) || _.isString(options)) {
                 this.timestamp = options;
@@ -82,7 +125,9 @@ define([ 'underscore', 'q' ], function(_, Q) {
             }
         },
 
-        /** Returns the timestamp of this object. */
+        /**
+         * Returns the timestamp of this object.
+         */
         getTimestamp : function() {
             if (this.timestamp === undefined) {
                 this.timestamp = this.newTimestamp();
@@ -90,7 +135,9 @@ define([ 'underscore', 'q' ], function(_, Q) {
             return this.timestamp;
         },
 
-        /** Returns a version of this object */
+        /**
+         * Returns a version of this object.
+         */
         getVersionId : function() {
             var versionId = this.versionId;
             if (!versionId) {
@@ -99,7 +146,9 @@ define([ 'underscore', 'q' ], function(_, Q) {
             return versionId;
         },
 
-        /** Returns a new timestamp for this object */
+        /**
+         * Returns a new timestamp for this object.
+         */
         newTimestamp : function() {
             return new Date().getTime();
         },
@@ -129,13 +178,18 @@ define([ 'underscore', 'q' ], function(_, Q) {
             return a >= 0 && b <= 0;
         },
 
-        /** Returns string representation of this object */
+        /**
+         * Returns string representation of this object.
+         */
         toString : function() {
             return JSON.stringify(this);
         }
     });
 
-    /** Transforms the given object into a API.Version instance */
+    /**
+     * An utility static method transforming the given object into a API.Version
+     * instance
+     */
     API.version = function(obj) {
         if (obj instanceof API.Version)
             return obj;
@@ -144,67 +198,142 @@ define([ 'underscore', 'q' ], function(_, Q) {
 
     /* -------------------------------------------------------------------- */
 
-    /** Common interface for all resources managed by API.Project instances */
+    /**
+     * Common interface for all resources managed by API.Project instances.
+     */
     API.Resource = API.newClass({
-        /** Initializes this object */
+
+        /**
+         * Initializes this object.
+         */
         initialize : function(options) {
             options = options || {};
             _.each(options, function(value, key) {
                 this[key] = API.copy(value);
             }, this);
-            this.sys = this.sys||{};
-            this.properties = this.properties||{};
+            this.sys = this.sys || {};
+            this.properties = this.properties || {};
         },
-        /** Returns a new copy of this resource */
+
+        /**
+         * Returns a new copy of this resource.
+         */
         getCopy : function() {
             return API.resource(this, true);
         },
-        /** Returns the version info defining the creation time of this resource */
+
+        /**
+         * Returns the version info defining the creation time of this resource.
+         */
         getCreated : function() {
             var v = this._getVersion('created');
             return v;
         },
-        /** Returns the version info defining modification time of this resource */
+
+        /**
+         * Returns the version info defining modification time of this resource.
+         */
         getUpdated : function() {
             var v = this._getVersion('updated');
+            if (!v) {
+                v = this.getCreated();
+            }
             return v;
         },
-        /** Returns system properties */
-        getSystemProperties : function() {
-            return this.sys;
-        },
-        /** Returns user-defined properties. */
-        getProperties : function() {
-            return this.properties;
-        },
-        /** Returns the path to this resource */
-        getPath : function() {
-            return this.sys.path;
-        },
-        /** Sets/updates path of this resource */
-        setPath : function(path) {
-            this.sys.path = API.normalizePath(path);
-        },
-        /** Returns a version object corresponding to the specified key */
-        _getVersion : function(key) {
-            var version = this.sys[key];
-            return version;
-        },
-        /** Updates version of this resource */
-        updateVersion : function(version) {
-            var sys = this.sys;
-            if (!this.sys.created) {
-                this.sys.created = version;
+
+        /**
+         * Returns a 'family' of properties with the specified name. A property
+         * family is a top-level fields of the resource class. Some
+         * implementations could restrict the number of family fields. At least
+         * two family fields are expected from all implementations:
+         * <ul>
+         * <li>sys - system properties; most of the fields in the family are
+         * managed automatically by the underlying implementation and can not be
+         * directly changed by end users. This family of properties is returned
+         * by the 'getSystemProperties' method.</li>
+         * <li>properties - custom user-defined properties; properties from
+         * this family could be changed directly. This family of properties is
+         * returned by the 'getProperties' method.</li>
+         * </ul>
+         * 
+         * @param familyName
+         *            the name of the family to return
+         * @param create
+         *            if this flag is <code>true</code> and the requested
+         *            family does not exist yet then this method creates a new
+         *            family with this name.
+         * 
+         */
+        getPropertyFamily : function(familyName, create) {
+            var result = this[familyName];
+            if (!result && create) {
+                result = this[familyName] = {};
             }
-            this.sys.updated = version;
+            return result;
         },
 
-        /** Returns string representation of this object */
+        /**
+         * Returns system properties.
+         */
+        getSystemProperties : function() {
+            return this.getPropertyFamily('sys', true);
+        },
+
+        /**
+         * Returns user-defined resource properties.
+         */
+        getProperties : function() {
+            return this.getPropertyFamily('properties', true);
+        },
+
+        /**
+         * Returns the path to this resource.
+         */
+        getPath : function() {
+            var sys = this.getSystemProperties();
+            return sys.path;
+        },
+
+        /**
+         * Sets/updates path of this resource.
+         */
+        setPath : function(path) {
+            var sys = this.getSystemProperties();
+            sys.path = API.normalizePath(path);
+        },
+
+        /**
+         * Returns a version object corresponding to the specified key.
+         */
+        _getVersion : function(key) {
+            var sys = this.getSystemProperties();
+            var version = sys[key];
+            return version;
+        },
+
+        /**
+         * Updates version of this resource.
+         */
+        updateVersion : function(version) {
+            var sys = this.getSystemProperties();
+            if (!sys.created) {
+                sys.created = version;
+            }
+            sys.updated = version;
+        },
+
+        /**
+         * Returns string representation of this object.
+         */
         toString : function() {
             return JSON.stringify(this);
         }
+
     });
-    /** Transforms the given object into a API.Resource instance */
+
+    /**
+     * Transforms the given object into a API.Resource instance.
+     */
     API.resource = function(obj, copy) {
         if (!copy && (obj instanceof API.Resource))
             return obj;
@@ -219,6 +348,7 @@ define([ 'underscore', 'q' ], function(_, Q) {
      * instantiate and open the corresponding connection.
      */
     API.WorkspaceConnection = API.newClass({
+
         /**
          * Connects to the underlying workspace and returns the workspace
          * instance.
@@ -236,8 +366,11 @@ define([ 'underscore', 'q' ], function(_, Q) {
 
         /**
          * Loads all projects from this workspace. Returns a {key: project} map.
+         * 
+         * @param options
+         *            options object
          */
-        loadProjects : function() {
+        loadProjects : function(options) {
             return this.notImplemented.apply(this, arguments);
         },
 
@@ -267,14 +400,19 @@ define([ 'underscore', 'q' ], function(_, Q) {
         deleteProject : function(projectKey, options) {
             return this.notImplemented.apply(this, arguments);
         }
+
     });
 
     /* -------------------------------------------------------------------- */
 
-    /** Individual project giving access to resources. */
+    /**
+     * Individual project giving access to resources.
+     */
     API.Project = API.newClass({
 
-        /** Returns the key of the project */
+        /**
+         * Returns the key of the project.
+         */
         getProjectKey : function() {
             throw API.notImplemented();
         },
@@ -540,24 +678,6 @@ define([ 'underscore', 'q' ], function(_, Q) {
             //                
             // })
         }
-
-    // ----------------------------------------------
-    // Lock/unlock
-
-    // // options: { force : true, prevLock : lock }
-    // lockResource : function(path, options) {
-    // return this.notImplemented.apply(this, arguments);
-    // // 'lock' is an object with the following fields:
-    // // - id: 'idLock'
-    // // - expireTime: 123435
-    // // - path : 'path/to/res1'
-    // // - userId: 'JohnSmithId'
-    // },
-    //
-    // // 'lock' is an object defining the max timeout of the lock
-    // unlockResource : function(path, lock) {
-    // return this.notImplemented.apply(this, arguments);
-    // }
 
     });
 
