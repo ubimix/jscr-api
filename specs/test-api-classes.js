@@ -10,16 +10,16 @@ define([ 'underscore', //
     function testPathNormalization() {
         it('should add a slash ' + 'at the beginning '
                 + 'and remove trailing slashes', function() {
-            expect(API.normalizePath('')).toEqual('/');
-            expect(API.normalizePath('/')).toEqual('/');
-            expect(API.normalizePath('a')).toEqual('/a');
-            expect(API.normalizePath('a/')).toEqual('/a');
-            expect(API.normalizePath('/a/')).toEqual('/a');
-            expect(API.normalizePath('/a')).toEqual('/a');
-            expect(API.normalizePath('a/b')).toEqual('/a/b');
-            expect(API.normalizePath('a/b/')).toEqual('/a/b');
-            expect(API.normalizePath('/a/b')).toEqual('/a/b');
-            expect(API.normalizePath('/a/b/')).toEqual('/a/b');
+            expect(API.normalizePath('')).toEqual('');
+            expect(API.normalizePath('/')).toEqual('');
+            expect(API.normalizePath('a')).toEqual('a');
+            expect(API.normalizePath('a/')).toEqual('a');
+            expect(API.normalizePath('/a/')).toEqual('a');
+            expect(API.normalizePath('/a')).toEqual('a');
+            expect(API.normalizePath('a/b')).toEqual('a/b');
+            expect(API.normalizePath('a/b/')).toEqual('a/b');
+            expect(API.normalizePath('/a/b')).toEqual('a/b');
+            expect(API.normalizePath('/a/b/')).toEqual('a/b');
         });
     }
 

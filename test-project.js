@@ -12,8 +12,10 @@ function(_, Q, API, Utils) {
             var projectName = "test";
             var project;
             var promise;
+            var testPromise;
 
             beforeEach(function() {
+                testPromise = new Utils.TestPromise();
                 var connection = newConnection();
                 promise = connection.connect().then(function(workspace) {
                     return workspace.loadProject(projectName, {
@@ -23,10 +25,14 @@ function(_, Q, API, Utils) {
                     project = prj;
                 });
             });
+            afterEach(function() {
+                testPromise.waitsForFinish();
+                testPromise = null;
+            })
 
             it('should have all methods defined by the API', function() {
-                Utils.testPromise(promise.then(function() {
-                    Utils.checkMethods(project, 'getProjectKey',
+                testPromise.test(promise.then(function() {
+                    return Utils.checkMethods(project, 'getProjectKey',
                             'loadResource', 'loadResources', 'loadResources',
                             'deleteResource', 'storeResource',
                             'loadModifiedResources', 'loadResourceHistory',
@@ -36,34 +42,36 @@ function(_, Q, API, Utils) {
 
             it('should be able to return an empty resource', function() {
                 var path = API.normalizePath('README.txt');
-                Utils.testPromise(promise.then(function() {
+                testPromise.test(promise.then(function() {
                     return project.loadResource(path, {
                         create : true
                     });
                 }).then(function(resource) {
                     expect(resource).not.toEqual(null);
                     expect(resource.getPath()).toEqual(path);
+                    expect(resource.getPath()).toEqual(path);
                 }));
             });
 
             it('should be able to load child resources', function() {
                 function testChildResources(project, parentPath, childPaths) {
-                    var p = project.loadChildResources(parentPath).then(
-                            function(children) {
-                                // expect(_.keys(children).length).toEqual(childPaths.length)
-                                _.each(children, function(child, path) {
-                                    expect(_.contains(childPaths, path))
-                                            .toEqual(true);
-                                    expect(child.getPath()).toEqual(path);
-                                });
-                            });
+                    var p = project.loadChildResources(parentPath)
+                    //
+                    .then(function(children) {
+                        // expect(_.keys(children).length).toEqual(childPaths.length)
+                        _.each(children, function(child, path) {
+                            expect(_.contains(childPaths, path)).toEqual(true);
+                            expect(child.getPath()).toEqual(path);
+                        });
+                    });
                     Utils.testPromise(p);
                 }
 
                 var list = [ 'about', 'about/team', 'about/news', 'docs',
                         'docs/help', 'docs/help/introduction',
                         '/path/to/resource' ];
-                Utils.testPromise(promise.then(function() {
+
+                testPromise.test(promise.then(function() {
                     return project.loadResources(list, {
                         create : true
                     });
@@ -77,21 +85,21 @@ function(_, Q, API, Utils) {
                                 expect(path).toEqual(name);
                             })
                             testChildResources(project, 'about', [
-                                    '/about/team', '/about/news' ]);
-                            testChildResources(project, '', [ '/about', '/docs',
-                                    '/path' ]);
+                                    'about/team', 'about/news' ]);
+                            testChildResources(project, '', [ 'about', 'docs',
+                                    'path' ]);
                             return true;
                         }));
             });
 
             it('should be able to create a new resource', function() {
                 var path = API.normalizePath('README.txt');
-                Utils.testPromise(promise.then(function() {
+                testPromise.test(promise.then(function() {
                     return project.loadResource(path, {
                         create : true
                     });
                 }).then(function(resource) {
-                    expect(resource).not.toBe(null);
+                    expect(resource).not.toEqual(null);
                     var properties = resource.getProperties();
                     expect(resource.getPath()).toEqual(path);
                     expect(properties).not.toEqual(null);
@@ -131,7 +139,7 @@ function(_, Q, API, Utils) {
             it('should be able to show resource history', function() {
                 var path = API.normalizePath('README.txt');
                 var resource = null;
-                Utils.testPromise(promise.then(function() {
+                testPromise.test(promise.then(function() {
                     return project.loadResource(path, {
                         create : true
                     });
