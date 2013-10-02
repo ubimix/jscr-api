@@ -211,8 +211,8 @@ define([ 'underscore', 'q' ], function(_, Q) {
             _.each(options, function(value, key) {
                 this[key] = API.copy(value);
             }, this);
-            this.sys = this.sys || {};
-            this.properties = this.properties || {};
+            this.getSystemProperties();
+            this.getProperties();
         },
 
         /**
@@ -239,6 +239,15 @@ define([ 'underscore', 'q' ], function(_, Q) {
                 v = this.getCreated();
             }
             return v;
+        },
+
+        /**
+         * Returns a list of all property families of this resource. The
+         * resulting list should contain at least two values 'sys' and
+         * 'properties'.
+         */
+        getPropertyFamilies : function() {
+            return _.keys(this);
         },
 
         /**
