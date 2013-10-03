@@ -59,6 +59,7 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
             return API.normalizePath(this.options.key);
         },
         getResourceHistory : function(path, create) {
+            path = API.normalizePath(path);
             var history = this.resources[path];
             if (!history && create) {
                 history = [];
@@ -69,6 +70,14 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
         getResource : function(path, options) {
             options = options || {};
             path = API.normalizePath(path);
+            if (options.create) {
+                var list = path.split('/');
+                list.pop();
+                if (list.length) {
+                    this.getResource(list.join('/'), options);
+                }
+            }
+
             var history = this.getResourceHistory(path, options.create);
             var resource = null;
             if (history) {
@@ -109,12 +118,13 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
         },
         // 'resources' is a map of paths and the corresponding resources
         loadResources : function(pathList, options) {
-            var list = [];
+            var result = {};
             _.each(pathList, function(path) {
                 var resource = this.getResource(path, options);
-                list.push(resource);
+                var resourcePath = resource.getPath();
+                result[resourcePath] = resource;
             }, this);
-            return Q(list);
+            return Q(result);
         },
 
         loadChildResources : function(path, options) {
@@ -125,7 +135,10 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
                     var str = resourcePath.substring(path.length);
                     if (str.indexOf('/') <= 0) {
                         var resourceObj = this.getResource(resourcePath);
-                        result[resourcePath] = resourceObj;
+                        if (resourceObj) {
+                            var resourcePath = resourceObj.getPath();
+                            result[resourcePath] = resourceObj;
+                        }
                     }
                 }
             }, this);

@@ -33,10 +33,9 @@ function(_, Q, API, Utils) {
             it('should have all methods defined by the API', function() {
                 testPromise.test(promise.then(function() {
                     return Utils.checkMethods(project, 'getProjectKey',
-                            'loadResource', 'loadResources', 'loadResources',
-                            'deleteResource', 'storeResource',
-                            'loadModifiedResources', 'loadResourceHistory',
-                            'searchResources');
+                            'loadResource', 'loadResources', 'deleteResource',
+                            'storeResource', 'loadModifiedResources',
+                            'loadResourceHistory', 'searchResources');
                 }));
             });
 
@@ -55,12 +54,16 @@ function(_, Q, API, Utils) {
 
             it('should be able to load child resources', function() {
                 function testChildResources(project, parentPath, childPaths) {
+                    childPaths = _.map(childPaths, function(p) {
+                        return API.normalizePath(p);
+                    })
                     var p = project.loadChildResources(parentPath)
                     //
                     .then(function(children) {
                         // expect(_.keys(children).length).toEqual(childPaths.length)
-                        _.each(children, function(child, path) {
-                            expect(_.contains(childPaths, path)).toEqual(true);
+                        _.each(childPaths, function(path) {
+                            var child = children[path];
+                            expect(child).not.toEqual(null);
                             expect(child.getPath()).toEqual(path);
                         });
                     });
@@ -77,10 +80,9 @@ function(_, Q, API, Utils) {
                     });
                 }).then(
                         function(resources) {
-                            var pos = 0;
                             _.each(list, function(name) {
                                 name = API.normalizePath(name);
-                                var resource = resources[pos++];
+                                var resource = resources[name];
                                 var path = resource.getPath();
                                 expect(path).toEqual(name);
                             })
