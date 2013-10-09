@@ -53,7 +53,7 @@ function(_, Q, API, Utils) {
             //
             .then(function(project) {
                 expect(project).not.toEqual(null);
-                var control = API.normalizePath(projectName);
+                var control = API.normalizeKey(projectName);
                 expect(project.getProjectKey()).toEqual(control);
                 return true;
             })
@@ -75,7 +75,7 @@ function(_, Q, API, Utils) {
             expect(projects.length).toEqual(projectNames.length);
             for ( var i = 0; i < projects.length; i++) {
                 var project = projects[i];
-                var control = API.normalizePath(projectNames[i]);
+                var control = API.normalizeKey(projectNames[i]);
                 var test = project.getProjectKey();
                 expect(test).toEqual(control);
             }

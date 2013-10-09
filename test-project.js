@@ -40,7 +40,7 @@ function(_, Q, API, Utils) {
             });
 
             it('should be able to return an empty resource', function() {
-                var path = API.normalizePath('README.txt');
+                var path = API.normalizeKey('README.txt');
                 testPromise.test(promise.then(function() {
                     return project.loadResource(path, {
                         create : true
@@ -55,7 +55,7 @@ function(_, Q, API, Utils) {
             it('should be able to load child resources', function() {
                 function testChildResources(project, parentPath, childPaths) {
                     childPaths = _.map(childPaths, function(p) {
-                        return API.normalizePath(p);
+                        return API.normalizeKey(p);
                     })
                     var p = project.loadChildResources(parentPath)
                     //
@@ -81,7 +81,7 @@ function(_, Q, API, Utils) {
                 }).then(
                         function(resources) {
                             _.each(list, function(name) {
-                                name = API.normalizePath(name);
+                                name = API.normalizeKey(name);
                                 var resource = resources[name];
                                 var path = resource.getPath();
                                 expect(path).toEqual(name);
@@ -95,7 +95,7 @@ function(_, Q, API, Utils) {
             });
 
             it('should be able to create a new resource', function() {
-                var path = API.normalizePath('README.txt');
+                var path = API.normalizeKey('README.txt');
                 testPromise.test(promise.then(function() {
                     return project.loadResource(path, {
                         create : true
@@ -139,7 +139,7 @@ function(_, Q, API, Utils) {
 
             // }
             it('should be able to show resource history', function() {
-                var path = API.normalizePath('README.txt');
+                var path = API.normalizeKey('README.txt');
                 var resource = null;
                 testPromise.test(promise.then(function() {
                     return project.loadResource(path, {

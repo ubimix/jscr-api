@@ -87,22 +87,25 @@ define([ 'underscore', 'q' ], function(_, Q) {
     }
 
     /**
-     * Normalizes the given path.
+     * Normalizes the given key.
      */
-    API.normalizePath = function(path) {
-        if (!path)
+    API.normalizeKey = function(key) {
+        if (!key)
             return '';
-        path = '' + path;
-        path = path.replace(/[\\\/]+/g, '/');
-        if (path.match(/^\//)) {
-            // path = '/' + path;
-            path = path.substring(1);
+        key = '' + key;
+        key = key.replace(/[\\\/]+/g, '/');
+        if (key.match(/^\//)) {
+            key = key.substring(1);
         }
-        if (path.match(/\/$/) && path.length > 1) {
-            path = path.substring(0, path.length - 1);
+        if (key.match(/\/$/) && key.length > 1) {
+            key = key.substring(0, key.length - 1);
         }
-        return path;
+        return key;
     }
+    /**
+     * @deprecated use the #normalizeKey method instead
+     */
+    API.normalizePath = API.normalizeKey;
 
     /* -------------------------------------------------------------------- */
     /**
@@ -297,18 +300,36 @@ define([ 'underscore', 'q' ], function(_, Q) {
 
         /**
          * Returns the path to this resource.
+         * 
+         * @deprecated use the #getKey method instead
          */
         getPath : function() {
+            return this.getKey();
+        },
+
+        /**
+         * Returns the key of this resource.
+         */
+        getKey : function() {
             var sys = this.getSystemProperties();
             return sys.path;
         },
 
         /**
-         * Sets/updates path of this resource.
+         * Sets a new path to this resource.
+         * 
+         * @deprecated use the #setKey method instead
          */
         setPath : function(path) {
+            this.setKey(path);
+        },
+
+        /**
+         * Sets/updates the key of this resource.
+         */
+        setKey : function(key) {
             var sys = this.getSystemProperties();
-            sys.path = API.normalizePath(path);
+            sys.path = API.normalizeKey(key);
         },
 
         /**
@@ -427,61 +448,61 @@ define([ 'underscore', 'q' ], function(_, Q) {
         },
 
         /**
-         * Loads a resource corresponding to the specified path. If there is no
+         * Loads a resource corresponding to the specified key. If there is no
          * such a resource an the given options object contains the 'create'
          * field set to <code>true</code> then a new resource is created.
          * 
-         * @param path
-         *            the path of the resource to load
+         * @param key
+         *            the key of the resource to load
          */
-        loadResource : function(path, options) {
+        loadResource : function(key, options) {
             return this.notImplemented.apply(this, arguments);
         },
 
         /**
          * This method loads or create a set of resources corresponding to the
-         * specified paths. If the specified 'options' object contains the
+         * specified keys. If the specified 'options' object contains the
          * "create":"true" flag then resources are automatically created if they
-         * does not exist yet. The returned map contains paths as keys and the
+         * does not exist yet. The returned map contains keys as keys and the
          * corresponding resources as values.
          * 
-         * @param pathList
-         *            a list of path prefixes
+         * @param keyList
+         *            a list of keys
          * @param options
          *            an object containing loading options (depends on
          *            implementation)
          */
-        loadResources : function(pathList, options) {
+        loadResources : function(keyList, options) {
             return this.notImplemented.apply(this, arguments);
         },
 
         /**
-         * Loads a map of all resources with the path starting with the
-         * specified prefix. The returned map contains paths as keys and the
-         * corresponding resources as values.
+         * Loads a map of all resources with the key starting with the specified
+         * prefix. The returned map contains keys with the corresponding
+         * resources instances.
          * 
-         * @param pathList
-         *            a list of path prefixes
+         * @param keyList
+         *            a list of keys
          * @param options
          *            an object containing search options (depends on
          *            implementation)
          */
-        loadChildResources : function(path, options) {
+        loadChildResources : function(key, options) {
             return this.notImplemented.apply(this, arguments);
         },
 
         /**
-         * Removes a resource corresponding to the specified path from the
+         * Removes a resource corresponding to the specified key from the
          * underlying storage. This method returns <code>true</code> if the
          * resource was removed and <code>false</code> if there is no such
          * resource.
          * 
-         * @param path
-         *            the path of the resource to remove
+         * @param key
+         *            the key of the resource to remove
          * @param options
          *            implementation-specific options
          */
-        deleteResource : function(path, options) {
+        deleteResource : function(key, options) {
             return this.notImplemented.apply(this, arguments);
         },
 
@@ -502,9 +523,9 @@ define([ 'underscore', 'q' ], function(_, Q) {
         // History management
 
         /**
-         * Loads all resource path with the specified range of versions. This
-         * method returns a list of API.Version instances containing 'paths'
-         * fields with a list resource path modified at this version.
+         * Loads all resource keys with the specified range of versions. This
+         * method returns a list of API.Version instances containing 'keys'
+         * fields with a list resource key modified at this version.
          * 
          * <pre>
          * Request options: 
@@ -520,17 +541,17 @@ define([ 'underscore', 'q' ], function(_, Q) {
          *      {
          *          version : 10,
          *          timestamp: 123456789,
-         *          paths: ['/README.txt', '/about/team.md']
+         *          keys: ['/README.txt', '/about/team.md']
          *      },
          *      {
          *          version : 9,
          *          timestamp: 123456750,
-         *          paths: ['/doc/help.md']
+         *          keys: ['/doc/help.md']
          *      },
          *      {
          *          version : 8,
          *          timestamp: 123456607,
-         *          paths: ['/product.md', '/services.md']
+         *          keys: ['/product.md', '/services.md']
          *      }
          *  ...
          * ]
@@ -587,14 +608,14 @@ define([ 'underscore', 'q' ], function(_, Q) {
          * ]
          * </pre>
          * 
-         * @param path
-         *            the path of the resource to load
+         * @param key
+         *            the key of the resource to load
          * @param options
          *            object containing search options; 'from' - the oldest
          *            modification version identifier; 'to' - the most recent
          *            searched version
          */
-        loadResourceRevisions : function(path, options) {
+        loadResourceRevisions : function(key, options) {
             return this.notImplemented.apply(this, arguments);
         },
 
@@ -620,14 +641,14 @@ define([ 'underscore', 'q' ], function(_, Q) {
          * ]
          * </pre>
          * 
-         * @param path
-         *            the path of the resource to load
+         * @param key
+         *            the key of the resource to load
          * @param options
          *            object containing search options; 'from' - the oldest
          *            modification version identifier; 'to' - the most recent
          *            searched version
          */
-        loadResourceHistory : function(path, options) {
+        loadResourceHistory : function(key, options) {
             return this.notImplemented.apply(this, arguments);
         },
 

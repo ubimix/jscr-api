@@ -7,19 +7,19 @@ define([ 'underscore', //
 
     var trace = Utils.trace;
 
-    function testPathNormalization() {
+    function testKeyNormalization() {
         it('should add a slash ' + 'at the beginning '
                 + 'and remove trailing slashes', function() {
-            expect(API.normalizePath('')).toEqual('');
-            expect(API.normalizePath('/')).toEqual('');
-            expect(API.normalizePath('a')).toEqual('a');
-            expect(API.normalizePath('a/')).toEqual('a');
-            expect(API.normalizePath('/a/')).toEqual('a');
-            expect(API.normalizePath('/a')).toEqual('a');
-            expect(API.normalizePath('a/b')).toEqual('a/b');
-            expect(API.normalizePath('a/b/')).toEqual('a/b');
-            expect(API.normalizePath('/a/b')).toEqual('a/b');
-            expect(API.normalizePath('/a/b/')).toEqual('a/b');
+            expect(API.normalizeKey('')).toEqual('');
+            expect(API.normalizeKey('/')).toEqual('');
+            expect(API.normalizeKey('a')).toEqual('a');
+            expect(API.normalizeKey('a/')).toEqual('a');
+            expect(API.normalizeKey('/a/')).toEqual('a');
+            expect(API.normalizeKey('/a')).toEqual('a');
+            expect(API.normalizeKey('a/b')).toEqual('a/b');
+            expect(API.normalizeKey('a/b/')).toEqual('a/b');
+            expect(API.normalizeKey('/a/b')).toEqual('a/b');
+            expect(API.normalizeKey('/a/b/')).toEqual('a/b');
         });
     }
 
@@ -72,6 +72,6 @@ define([ 'underscore', //
     describe('Basic API classes', function() {
         describe('API.Class', testClassCreation);
         describe('API.Version', testVersions);
-        describe('API.normalize', testPathNormalization);
+        describe('API.normalize', testKeyNormalization);
     })
 })

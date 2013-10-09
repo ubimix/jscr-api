@@ -24,7 +24,7 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
             this.projects = {};
         },
         loadProject : function(projectKey, options) {
-            projectKey = API.normalizePath(projectKey);
+            projectKey = API.normalizeKey(projectKey);
             var project = this.projects[projectKey];
             if (!project && options.create) {
                 project = this.newProject({
@@ -38,7 +38,7 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
             return Q(this.projects);
         },
         deleteProject : function(projectKey, options) {
-            projectKey = API.normalizePath(projectKey);
+            projectKey = API.normalizeKey(projectKey);
             var project = this.projects[projectKey];
             var result = project != null;
             delete this.projects[projectKey];
@@ -56,33 +56,33 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
             this.resources = {};
         },
         getProjectKey : function() {
-            return API.normalizePath(this.options.key);
+            return API.normalizeKey(this.options.key);
         },
-        getResourceHistory : function(path, create) {
-            path = API.normalizePath(path);
-            var history = this.resources[path];
+        getResourceHistory : function(key, create) {
+            key = API.normalizeKey(key);
+            var history = this.resources[key];
             if (!history && create) {
                 history = [];
-                this.resources[path] = history;
+                this.resources[key] = history;
             }
             return history;
         },
-        getResource : function(path, options) {
+        getResource : function(key, options) {
             options = options || {};
-            path = API.normalizePath(path);
+            key = API.normalizeKey(key);
             if (options.create) {
-                var list = path.split('/');
+                var list = key.split('/');
                 list.pop();
                 if (list.length) {
                     this.getResource(list.join('/'), options);
                 }
             }
 
-            var history = this.getResourceHistory(path, options.create);
+            var history = this.getResourceHistory(key, options.create);
             var resource = null;
             if (history) {
                 if (history.length == 0) {
-                    resource = this.newResource(path, options);
+                    resource = this.newResource(key, options);
                     history.push(resource);
                 } else {
                     resource = history[history.length - 1];
@@ -103,41 +103,41 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
             return this.version;
         },
         // TODO: options parameter not used ?
-        newResource : function(path, options) {
+        newResource : function(key, options) {
             var resource = API.resource();
-            resource.setPath(path);
+            resource.setKey(key);
             var version = this.getProjectVersion();
             resource.updateVersion(version);
             return resource;
         },
         /* ---------------------------------------------------------------- */
         // Public methods
-        loadResource : function(path, options) {
-            var resource = this.getResource(path, options);
+        loadResource : function(key, options) {
+            var resource = this.getResource(key, options);
             return Q(resource);
         },
-        // 'resources' is a map of paths and the corresponding resources
-        loadResources : function(pathList, options) {
+        // 'resources' is a map of keys and the corresponding resources
+        loadResources : function(keyList, options) {
             var result = {};
-            _.each(pathList, function(path) {
-                var resource = this.getResource(path, options);
-                var resourcePath = resource.getPath();
-                result[resourcePath] = resource;
+            _.each(keyList, function(key) {
+                var resource = this.getResource(key, options);
+                var resourceKey = resource.getKey();
+                result[resourceKey] = resource;
             }, this);
             return Q(result);
         },
 
-        loadChildResources : function(path, options) {
-            var path = API.normalizePath(path);
+        loadChildResources : function(key, options) {
+            var key = API.normalizeKey(key);
             var result = {};
-            _.each(this.resources, function(history, resourcePath) {
-                if (resourcePath.indexOf(path) == 0 && (path != resourcePath)) {
-                    var str = resourcePath.substring(path.length);
+            _.each(this.resources, function(history, resourceKey) {
+                if (resourceKey.indexOf(key) == 0 && (key != resourceKey)) {
+                    var str = resourceKey.substring(key.length);
                     if (str.indexOf('/') <= 0) {
-                        var resourceObj = this.getResource(resourcePath);
+                        var resourceObj = this.getResource(resourceKey);
                         if (resourceObj) {
-                            var resourcePath = resourceObj.getPath();
-                            result[resourcePath] = resourceObj;
+                            var resourceKey = resourceObj.getKey();
+                            result[resourceKey] = resourceObj;
                         }
                     }
                 }
@@ -145,18 +145,18 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
             return Q(result);
         },
         // Result: true/false
-        deleteResource : function(path, options) {
-            var path = API.normalizePath(path);
-            var resource = this.resources[path];
-            delete this.resources[path];
+        deleteResource : function(key, options) {
+            key = API.normalizeKey(key);
+            var resource = this.resources[key];
+            delete this.resources[key];
             var result = resource != null;
             return Q(result);
         },
 
         storeResource : function(resource, options) {
             resource = API.resource(resource);
-            var path = resource.getPath();
-            var history = this.getResourceHistory(path, true);
+            var key = resource.getKey();
+            var history = this.getResourceHistory(key, true);
             var version = this.getProjectVersion(true);
             resource.updateVersion(version);
             history.push(resource);
@@ -177,19 +177,19 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
                     return version.inRange(from, to);
                 }, this);
                 if (resource) {
-                    var path = resource.getPath();
-                    result[path] = resource;
+                    var key = resource.getKey();
+                    result[key] = resource;
                 }
             }, this);
             return Q(result);
         },
-        loadResourceHistory : function(path, options) {
+        loadResourceHistory : function(key, options) {
             options = options || {};
             var from = API.version(options.from || 0);
             var to = API.version(options.to);
-            path = API.normalizePath(path);
+            key = API.normalizeKey(key);
             var result = [];
-            var history = this.getResourceHistory(path, false);
+            var history = this.getResourceHistory(key, false);
             if (history) {
                 _.each(history, function(revision) {
                     var version = revision.getUpdated();
@@ -200,7 +200,7 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
             }
             return Q(result);
         },
-        loadResourceRevisions : function(path, options) {
+        loadResourceRevisions : function(key, options) {
             var versions = {};
             var timestamps = {};
             var versions = options.versions || [];
@@ -212,9 +212,9 @@ define([ 'underscore', 'q', './jscr-api' ], function(_, Q, API) {
                 timestamps[timestamp] = v;
             });
 
-            path = API.normalizePath(path);
+            key = API.normalizeKey(key);
             var result = [];
-            var history = this.getResourceHistory(path, false);
+            var history = this.getResourceHistory(key, false);
             if (history) {
                 _.each(history, function(revision) {
                     var version = revision.getUpdated();
