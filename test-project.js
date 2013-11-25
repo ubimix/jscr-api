@@ -126,15 +126,20 @@ function(_, Q, API, Utils) {
                     return project.loadResourceRevisions(path, {
                         versions : history
                     });
-                }).then(function(revisions) {
-                    expect(revisions.length).toEqual(len);
-                    var pos = 0;
-                    _.each(revisions, function(revision) {
-                        var version = revision.getUpdated();
-                        var expected = history[pos++];
-                        expect(version).toEqual(expected);
-                    })
-                });
+                }).then(
+                        function(revisions) {
+                            expect(revisions.length).toEqual(len);
+                            var pos = 0;
+                            _.each(revisions, function(revision) {
+                                var version = revision.getUpdated();
+                                var expected = history[pos++];
+                                _.each([ 'versionId', 'timestamp', 'author' ],
+                                        function(key) {
+                                            expect(version[key]).toEqual(
+                                                    expected[key]);
+                                        })
+                            })
+                        });
             }
 
             // }
